@@ -12,14 +12,27 @@ const urls = [
 function fetchICS(url) {
   return new Promise((resolve, reject) => {
     const lib = url.startsWith("https") ? https : http;
-    lib.get(url, (res) => {
+
+    const options = {
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "text/calendar,*/*"
+      }
+    };
+
+    lib.get(url, options, (res) => {
       let data = "";
+
+      if (res.statusCode !== 200) {
+        reject(`Failed to fetch ${url}: ${res.statusCode}`);
+        return;
+      }
+
       res.on("data", chunk => data += chunk);
       res.on("end", () => resolve(data));
     }).on("error", reject);
   });
 }
-
 function tagEvents(content, label) {
   return content
     .split("BEGIN:VEVENT")
