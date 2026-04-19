@@ -9,8 +9,9 @@ const urls = [
   { name: "BULLETS LAUREL", url: "http://ical-cdn.teamsnap.com/team_schedule/77ba7c90-06b5-0132-3ecf-3c764e05ae1d.ics" }
 ];
 
-function fetchICS(url) {
-  return new Promise((resolve, reject) => {
+// 🔁 Fetch with redirect support + safety
+function fetchICS(url, redirects = 5) {
+  return new Promise((resolve) => {
     const lib = url.startsWith("https") ? https : http;
 
     const options = {
@@ -21,18 +22,36 @@ function fetchICS(url) {
     };
 
     lib.get(url, options, (res) => {
-      let data = "";
+      // Handle redirects (301/302)
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        if (redirects === 0) return resolve("");
 
-      if (res.statusCode !== 200) {
-        reject(`Failed to fetch ${url}: ${res.statusCode}`);
-        return;
+        const nextUrl = res.headers.location.startsWith("http")
+          ? res.headers.location
+          : new URL(res.headers.location, url).href;
+
+        return resolve(fetchICS(nextUrl, redirects - 1));
       }
 
+      let data = "";
+
       res.on("data", chunk => data += chunk);
-      res.on("end", () => resolve(data));
-    }).on("error", reject);
+
+      res.on("end", () => {
+        if (res.statusCode !== 200) {
+          console.log(`Failed (${res.statusCode}): ${url}`);
+          return resolve("");
+        }
+        resolve(data);
+      });
+    }).on("error", (err) => {
+      console.log(`Error: ${url} -> ${err.message}`);
+      resolve("");
+    });
   });
 }
+
+// Tag events so you can see source team
 function tagEvents(content, label) {
   return content
     .split("BEGIN:VEVENT")
@@ -46,7 +65,13 @@ function tagEvents(content, label) {
 
 (async () => {
   const files = await Promise.all(urls.map(u => fetchICS(u.url)));
-  const events = files.map((file, i) => tagEvents(file, urls[i].name)).flat();
+
+  const events = files
+    .map((file, i) => {
+      if (!file) return [];
+      return tagEvents(file, urls[i].name);
+    })
+    .flat();
 
   const merged = [
     "BEGIN:VCALENDAR",
