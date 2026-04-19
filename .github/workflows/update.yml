@@ -27,5 +27,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add merged.ics
-          git commit -m "update calendar" || echo "no changes"
+          git diff --cached --quiet || git commit -m "update calendar"
           git push
