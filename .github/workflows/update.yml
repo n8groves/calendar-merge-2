@@ -5,22 +5,27 @@ on:
     - cron: "0 * * * *"
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   update:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: "18"
+          node-version: "20"
 
-      - run: node merge.js
+      - name: Run merge
+        run: node merge.js
 
-      - run: |
+      - name: Commit and push
+        run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add merged.ics
-          git commit -m "update" || echo "no changes"
+          git commit -m "update calendar" || echo "no changes"
           git push
