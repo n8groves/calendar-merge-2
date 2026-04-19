@@ -18,11 +18,12 @@ function fetchICS(url, redirects = 5) {
       headers: {
         "User-Agent": "Mozilla/5.0",
         "Accept": "text/calendar,*/*"
-      }
+      },
+      timeout: 10000 // ⬅️ 10 second timeout
     };
 
-    lib.get(url, options, (res) => {
-      // Handle redirects (301/302)
+    const req = lib.get(url, options, (res) => {
+      // Redirect handling
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         if (redirects === 0) return resolve("");
 
@@ -38,19 +39,20 @@ function fetchICS(url, redirects = 5) {
       res.on("data", chunk => data += chunk);
 
       res.on("end", () => {
-        if (res.statusCode !== 200) {
-          console.log(`Failed (${res.statusCode}): ${url}`);
-          return resolve("");
-        }
+        if (res.statusCode !== 200) return resolve("");
         resolve(data);
       });
-    }).on("error", (err) => {
-      console.log(`Error: ${url} -> ${err.message}`);
+    });
+
+    req.on("timeout", () => {
+      req.destroy();
+      console.log("Timeout:", url);
       resolve("");
     });
+
+    req.on("error", () => resolve(""));
   });
 }
-
 // Tag events so you can see source team
 function tagEvents(content, label) {
   return content
