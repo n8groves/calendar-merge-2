@@ -3,11 +3,10 @@ const http = require("http");
 const fs = require("fs");
 
 const urls = [
-  { name: "SCREAMING SQUIRRELS", url: "https://ics.benchapp.com/eyJwbGF5ZXJJZCI6MTEzODE0NjAsInRlYW1JZCI6WzcwMzA5OV19" },
+  { name: "SCREAMING SQUIRRELS", url: "https://api.myleaguehero.com/v1/calendar/eca05ccead6eecba0112b5e0ad0a5e8f9fcbd572c6c5b5a8517d48e81aaccfff.ics" },
   { name: "MASTODONS PINEY #1", url: "https://ics.benchapp.com/eyJwbGF5ZXJJZCI6MTEzODE0NjAsInRlYW1JZCI6WzkzNTU0M119" },
-  { name: "2 FOR HOOKING PINEY (SUB)", url: "https://ics.benchapp.com/eyJwbGF5ZXJJZCI6MTEzODE0NjAsInRlYW1JZCI6WzExMDMzNjldfQ==" },
-  { name: "MASTODONS LAUREL (SUB)", url: "https://ics.benchapp.com/eyJwbGF5ZXJJZCI6MTEzODE0NjAsInRlYW1JZCI6WzExOTU1NDFdfQ==" },
-  { name: "BULLETS LAUREL", url: "http://ical-cdn.teamsnap.com/team_schedule/77ba7c90-06b5-0132-3ecf-3c764e05ae1d.ics" }
+  { name: "MASTODONS LAUREL", url: "https://api.myleaguehero.com/v1/calendar/938b26bbadb36ea0e587723ffda514a122d9bcc774bd8307485338b18de6b9a3.ics" },
+  { name: "BULLETS LAUREL", url: "https://api.myleaguehero.com/v1/calendar/30f4c8d62b32c989c2bf03f12de83f3729b428862e036b1eab766a9b9b0353c2.ics" }
 ];
 
 // 🔁 Fetch ICS with redirect + timeout + safety
